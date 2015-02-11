@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -18,69 +17,74 @@ import net.sf.jasperreports.engine.data.JRCsvDataSource;
 
 public class CreateJasperReport {
 
-	public static void main(String[] args) {
+  public static void main(String[] args) {
 
-		String fileName = "export-UTF8.csv";
-		String jasperFile = "DHS_IVR.jasper";
+    String fileName = "export-UTF8.csv";
+    String jasperFile = "DHS_IVR.jasper";
 
-		JRCsvDataSource dataSource = getDataSource(fileName);
+    // Date and time of creation will be appended to the end
+    String exportFileName = "DHS-IVR";
 
-		Map<String, Object> map = new HashMap<>();
-		JasperPrint print = getPrintObject(jasperFile, map, dataSource);
+    JRCsvDataSource dataSource = getDataSource(fileName);
 
-		printToPdf(print);
-	}
+    Map<String, Object> map = new HashMap<>();
+    JasperPrint print = getPrintObject(jasperFile, map, dataSource);
 
-	private static JRCsvDataSource getDataSource(String fileName) {
-		JRCsvDataSource dataSource = null;
+    printToPdf(print, exportFileName);
+  }
 
-		try {
-			dataSource = new JRCsvDataSource(new File(fileName), "UTF-8");
-		} catch (FileNotFoundException | UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+  private static JRCsvDataSource getDataSource(String fileName) {
+    JRCsvDataSource dataSource = null;
 
-		dataSource.setUseFirstRowAsHeader(true);
-		dataSource.setFieldDelimiter('|');
-		dataSource.setRecordDelimiter("\r\n");
+    try {
+      dataSource = new JRCsvDataSource(new File(fileName), "UTF-8");
+    }
+    catch (FileNotFoundException | UnsupportedEncodingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 
-		return dataSource;
-	}
+    dataSource.setUseFirstRowAsHeader(true);
+    dataSource.setFieldDelimiter('|');
+    dataSource.setRecordDelimiter("\r\n");
 
-	private static JasperPrint getPrintObject(String jasperFile,
-			Map<String, Object> parameters, JRCsvDataSource dataSource) {
+    return dataSource;
+  }
 
-		JasperPrint print = null;
-		try {
-			print = JasperFillManager.fillReport(jasperFile, parameters,
-					dataSource);
-		} catch (JRException e) {
-			e.printStackTrace();
-		}
-		return print;
+  private static JasperPrint getPrintObject(String jasperFile, Map<String, Object> parameters,
+      JRCsvDataSource dataSource) {
 
-	}
+    JasperPrint print = null;
+    try {
+      print = JasperFillManager.fillReport(jasperFile, parameters, dataSource);
+    }
+    catch (JRException e) {
+      e.printStackTrace();
+    }
+    return print;
 
-	private static void printToPdf(JasperPrint printObject) {
+  }
 
-		SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyy-HH_mm");
-		Calendar cal = Calendar.getInstance();
+  private static void printToPdf(JasperPrint printObject, String exportFileName) {
 
-		OutputStream os = null;
-		try {
-			os = new FileOutputStream(new File("DHS-IVR-"
-					+ sdf.format(cal.getTime()) + ".pdf"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+    SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyy-HH_mm");
+    Calendar cal = Calendar.getInstance();
 
-		try {
-			JasperExportManager.exportReportToPdfStream(printObject, os);
-		} catch (JRException e) {
-			e.printStackTrace();
-		}
+    OutputStream os = null;
+    try {
+      os = new FileOutputStream(new File(exportFileName + "-" + sdf.format(cal.getTime()) + ".pdf"));
+    }
+    catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
 
-	}
+    try {
+      JasperExportManager.exportReportToPdfStream(printObject, os);
+    }
+    catch (JRException e) {
+      e.printStackTrace();
+    }
+
+  }
 
 }
